@@ -54,7 +54,7 @@ export function EmailBody({ content, isHtml }: EmailBodyProps) {
   const styledContent = hasHtmlTags
     ? `${content}
        <style>
-         img { max-width: 100% !important; height: auto !important; }
+         img { max-width: 100% !important; height: fit-content !important; }
          a { color: #2563eb !important; text-decoration: underline !important; }
        </style>`
     : `<!DOCTYPE html>
@@ -78,11 +78,24 @@ export function EmailBody({ content, isHtml }: EmailBodyProps) {
              }
              img {
                max-width: 100%;
-               height: auto;
+               height: fit-content;
              }
              a {
                color: #2563eb;
                text-decoration: underline;
+             }
+             ul {
+               list-style-type: disc !important;
+               padding-left: 20px !important;
+               margin: 8px 0 !important;
+             }
+             ol {
+               list-style-type: decimal !important;
+               padding-left: 20px !important;
+               margin: 8px 0 !important;
+             }
+             li {
+               margin: 4px 0 !important;
              }
            </style>
          </head>

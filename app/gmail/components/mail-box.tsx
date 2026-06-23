@@ -8,17 +8,20 @@ import {
   Inbox,
   ChevronDown,
   ArrowLeft,
+  SquarePen,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { EmailBody } from "./email-body"
 import { MailboxSkeleton } from "./mailbox-skeleton"
+import { ComposeDialog } from "./compose-dialog"
 import {
   getInitials,
   getAvatarColor,
   cleanSender,
   getSenderEmail,
   formatShortDate,
+  formatLongDate,
 } from "./mail-utils"
 
 interface Email {
@@ -29,6 +32,7 @@ interface Email {
   body?: string
   isHtml?: boolean
   date?: string
+  labelIds?: string[]
 }
 
 export default function Mailbox() {
@@ -37,6 +41,12 @@ export default function Mailbox() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null)
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [filter, setFilter] = useState<"received" | "sent">("received")
+
+  useEffect(() => {
+    setSelectedEmailId(null)
+  }, [filter])
 
   const fetchMail = async (isRefresh = false) => {
     if (isRefresh) {
@@ -66,7 +76,12 @@ export default function Mailbox() {
     fetchMail()
   }, [])
 
-  const selectedEmail = emails.find((e) => e.id === selectedEmailId)
+  const filteredEmails = emails.filter((email) => {
+    const isSent = email.labelIds?.includes("SENT")
+    return filter === "sent" ? isSent : !isSent
+  })
+
+  const selectedEmail = filteredEmails.find((e) => e.id === selectedEmailId)
 
   if (loading) {
     return <MailboxSkeleton />
@@ -117,49 +132,88 @@ export default function Mailbox() {
             <div className="inline-flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Inbox className="size-5" />
             </div>
-            <h2 className="text-lg font-bold tracking-tight">Inbox</h2>
-            {emails.length > 0 && (
+            <h2 className="text-lg font-bold tracking-tight">
+              {filter === "sent" ? "Sent" : "Inbox"}
+            </h2>
+            {filteredEmails.length > 0 && (
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                {emails.length}
+                {filteredEmails.length}
               </span>
             )}
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            disabled={refreshing}
-            onClick={() => fetchMail(true)}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setComposeOpen(true)}
+              className="rounded-lg hover:bg-muted"
+              title="Compose"
+            >
+              <SquarePen className="size-4 text-muted-foreground" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              disabled={refreshing}
+              onClick={() => fetchMail(true)}
+              className={cn(
+                "rounded-lg hover:bg-muted",
+                refreshing && "opacity-75"
+              )}
+            >
+              <RefreshCw
+                className={cn(
+                  "size-4 text-muted-foreground",
+                  refreshing && "animate-spin"
+                )}
+              />
+            </Button>
+          </div>
+        </div>
+
+        {/* Filter Switcher */}
+        <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-xl border border-border/60">
+          <button
+            onClick={() => setFilter("received")}
             className={cn(
-              "rounded-lg hover:bg-muted",
-              refreshing && "opacity-75"
+              "flex-1 text-center py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer select-none",
+              filter === "received"
+                ? "bg-card text-foreground shadow-xs border border-border/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
             )}
           >
-            <RefreshCw
-              className={cn(
-                "size-4 text-muted-foreground",
-                refreshing && "animate-spin"
-              )}
-            />
-          </Button>
+            Received
+          </button>
+          <button
+            onClick={() => setFilter("sent")}
+            className={cn(
+              "flex-1 text-center py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer select-none",
+              filter === "sent"
+                ? "bg-card text-foreground shadow-xs border border-border/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+            )}
+          >
+            Sent
+          </button>
         </div>
 
         {/* Email list container */}
         <div className="flex-1 scrollbar-thin space-y-2.5 overflow-y-auto pr-1">
-          {emails.length === 0 ? (
+          {filteredEmails.length === 0 ? (
             <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
               <div className="inline-flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <MailOpen className="size-6" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-base font-semibold">Your inbox is clear</h4>
+                <h4 className="text-base font-semibold">No messages</h4>
                 <p className="max-w-xs text-sm text-muted-foreground">
-                  No new messages found.
+                  No {filter} messages found.
                 </p>
               </div>
             </div>
           ) : (
-            emails.map((email) => {
+            filteredEmails.map((email) => {
               const isSelected = selectedEmailId === email.id
               const initials = getInitials(email.from)
               const avatarGrad = getAvatarColor(email.from)
@@ -214,14 +268,14 @@ export default function Mailbox() {
       {/* Right panel: Active Email details */}
       <div
         className={cn(
-          "flex h-full flex-1 flex-col overflow-hidden bg-card",
+          "flex flex-1 flex-col overflow-hidden bg-card",
           selectedEmailId
             ? "flex rounded-none border-0 shadow-none lg:rounded-2xl lg:border lg:border-border lg:shadow-xs"
             : "hidden lg:flex lg:rounded-2xl lg:border lg:border-border lg:shadow-xs items-center justify-center p-8 text-center text-muted-foreground"
         )}
       >
         {selectedEmail ? (
-          <div className="flex h-full flex-col overflow-hidden">
+          <div className="flex flex-col overflow-hidden">
             {/* Detail Header */}
             <div className="shrink-0 space-y-2 border-b border-border bg-muted/10 p-4 sm:p-5">
               {/* Controls */}
@@ -253,9 +307,19 @@ export default function Mailbox() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <span className="block text-sm font-semibold text-foreground">
-                        {cleanSender(selectedEmail.from)}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          {cleanSender(selectedEmail.from)}
+                        </span>
+                        <span className={cn(
+                          "rounded-full px-2 py-0.5 text-[10px] font-semibold border shadow-2xs select-none",
+                          selectedEmail.labelIds?.includes("SENT")
+                            ? "bg-blue-500/10 text-blue-600 border-blue-200/40 dark:text-blue-400 dark:border-blue-900/30"
+                            : "bg-emerald-500/10 text-emerald-600 border-emerald-200/40 dark:text-emerald-400 dark:border-emerald-900/30"
+                        )}>
+                          {selectedEmail.labelIds?.includes("SENT") ? "Sent" : "Inbox"}
+                        </span>
+                      </div>
                       {getSenderEmail(selectedEmail.from) && (
                         <span className="block text-xs text-muted-foreground">
                           {getSenderEmail(selectedEmail.from)}
@@ -264,7 +328,7 @@ export default function Mailbox() {
                     </div>
                     {selectedEmail.date && (
                       <span className="shrink-0 self-start text-xs text-muted-foreground sm:self-center">
-                        {selectedEmail.date}
+                        {formatLongDate(selectedEmail.date)}
                       </span>
                     )}
                   </div>
@@ -297,6 +361,8 @@ export default function Mailbox() {
           </div>
         )}
       </div>
+
+      <ComposeDialog open={composeOpen} onOpenChange={setComposeOpen} />
     </div>
   )
 }

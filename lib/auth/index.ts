@@ -14,7 +14,8 @@ export const auth = betterAuth({
                 "openid",
                 "profile", 
                 "email", 
-                "https://www.googleapis.com/auth/gmail.readonly"
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/gmail.send"
             ],
              // Force Google to return a refresh token so you can read emails long-term
             mapProfileToUser: async (profile) => {

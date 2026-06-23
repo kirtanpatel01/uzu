@@ -21,7 +21,7 @@ export const getSession = async (): Promise<GetSession> => {
   if (!session)
     return {
       success: false,
-      message: "Session not found",
+      message: "Please sign in to access your mailbox.",
     }
   return {
     success: true,

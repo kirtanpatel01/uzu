@@ -67,7 +67,7 @@ export const getEmails = async () => {
   if (!googleAccount) {
     return {
       success: false,
-      message: "Google account not found!",
+      message: "Google account connection not found. Please sign in again.",
     }
   }
 
@@ -117,6 +117,7 @@ export const getEmails = async () => {
         body,
         isHtml,
         date,
+        labelIds: detail.labelIds || [],
       }
     })
 
@@ -128,5 +129,75 @@ export const getEmails = async () => {
   } catch (error) {
     console.error("Gmail API Error", error)
     return { success: false, message: "Failed to fetch emails" }
+  }
+}
+
+export const sendEmail = async (to: string, subject: string, body: string) => {
+  const { success, message, data } = await getSession()
+  if (!success || !data) {
+    return {
+      success: false,
+      message: message || "Please sign in to access your mailbox.",
+    }
+  }
+
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+  )
+
+  const googleAccount = await db.account.findFirst({
+    where: { userId: data.user.id, providerId: "google" },
+  })
+
+  if (!googleAccount) {
+    return {
+      success: false,
+      message: "Google account connection not found. Please sign in again.",
+    }
+  }
+
+  oauth2Client.setCredentials({
+    access_token: googleAccount.accessToken,
+    refresh_token: googleAccount.refreshToken,
+    expiry_date: googleAccount.accessTokenExpiresAt
+      ? new Date(googleAccount.accessTokenExpiresAt).getTime()
+      : undefined,
+  })
+
+  try {
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client })
+
+    // Construct raw MIME email message
+    // Base64 encode the subject to safely handle Unicode/non-ASCII characters
+    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+    const messageParts = [
+      `To: ${to}`,
+      `Subject: ${utf8Subject}`,
+      "Content-Type: text/html; charset=utf-8",
+      "MIME-Version: 1.0",
+      "",
+      body,
+    ];
+    const rawMessage = messageParts.join("\n");
+    
+    // Base64url encode the entire email
+    const encodedMessage = Buffer.from(rawMessage)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: encodedMessage,
+      },
+    })
+
+    return { success: true, message: "Email sent successfully!" }
+  } catch (error: any) {
+    console.error("Gmail API Send Error", error)
+    return { success: false, message: error.message || "Failed to send email" }
   }
 }

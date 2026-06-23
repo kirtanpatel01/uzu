@@ -130,3 +130,30 @@
     @apply font-sans;
     }
 }
+
+/* TipTap ProseMirror Editor Styles */
+.ProseMirror {
+  min-height: 250px;
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0.5rem 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+.ProseMirror li {
+  display: list-item !important;
+  margin: 0.2rem 0 !important;
+}

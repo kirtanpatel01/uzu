@@ -48,3 +48,22 @@ export function formatShortDate(dateStr: string) {
   }
   return dateStr.slice(0, 10);
 }
+
+export function formatLongDate(dateStr: string) {
+  if (!dateStr) return "";
+  try {
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+  } catch (e) {}
+  return dateStr;
+}
