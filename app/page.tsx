@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { getSession } from "../lib/auth-server";
+import { Button } from "@/components/ui/button"
+import { getSession } from "../lib/auth/auth-server"
 
 export default async function page() {
-  const session = await getSession();
+  const session = await getSession()
   const user = session.data?.user
   return (
     <div>
@@ -17,6 +17,6 @@ export default async function page() {
           <Button>Login</Button>
         </div>
       )}
-   </div>
-  );
+    </div>
+  )
 }

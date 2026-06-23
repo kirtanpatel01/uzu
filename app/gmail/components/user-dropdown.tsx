@@ -11,7 +11,7 @@ import {
 import { User } from "better-auth"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { signIn, signOut } from "@/lib/auth-client"
+import { signIn, signOut, signUp } from "@/lib/auth/auth-client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
@@ -54,7 +54,11 @@ function UserDropdown({ user }: { user: User | undefined }) {
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={logout} disabled={loggingOut}>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={logout}
+              disabled={loggingOut}
+            >
               {loggingOut ? (
                 <Spinner />
               ) : (
