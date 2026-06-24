@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EmailBody } from "./email-body"
 import { MailboxSkeleton } from "./mailbox-skeleton"
 import { ComposeDialog } from "./compose-dialog"
@@ -115,22 +116,22 @@ export default function Mailbox() {
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-6 lg:flex-row",
-        selectedEmailId ? "pt-16 px-0 pb-0 lg:p-4 lg:pt-16" : "p-4 pt-16"
+        "flex h-full w-full flex-col items-stretch lg:flex-row",
+        // selectedEmailId ? "px-0 pb-0 lg:p-4" : "p-4"
       )}
     >
       {/* Left panel: Mail list */}
       <div
         className={cn(
-          "flex h-full w-full shrink-0 flex-col gap-4 lg:w-[350px] xl:w-[400px]",
+          "flex h-full w-full shrink-0 flex-col lg:w-[350px] xl:w-[400px] border-r",
           selectedEmailId && "hidden lg:flex" // Hide list on mobile if email is open
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border pb-2">
+        <div className="flex items-center justify-between border-b p-3">
           <div className="flex items-center gap-2.5">
-            <div className="inline-flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Inbox className="size-5" />
+            <div className="inline-flex size-7 items-center justify-center rounded-md bg-blue-600 text-white">
+              <Inbox className="size-4" />
             </div>
             <h2 className="text-lg font-bold tracking-tight">
               {filter === "sent" ? "Sent" : "Inbox"}
@@ -173,33 +174,23 @@ export default function Mailbox() {
         </div>
 
         {/* Filter Switcher */}
-        <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-xl border border-border/60">
-          <button
-            onClick={() => setFilter("received")}
-            className={cn(
-              "flex-1 text-center py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer select-none",
-              filter === "received"
-                ? "bg-card text-foreground shadow-xs border border-border/20"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-            )}
-          >
-            Received
-          </button>
-          <button
-            onClick={() => setFilter("sent")}
-            className={cn(
-              "flex-1 text-center py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer select-none",
-              filter === "sent"
-                ? "bg-card text-foreground shadow-xs border border-border/20"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-            )}
-          >
-            Sent
-          </button>
-        </div>
+        <Tabs
+          value={filter}
+          onValueChange={(val) => setFilter(val as "received" | "sent")}
+          className="w-full p-3 pb-1.5"
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="received" className="flex-1 cursor-pointer">
+              Received
+            </TabsTrigger>
+            <TabsTrigger value="sent" className="flex-1 cursor-pointer">
+              Sent
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Email list container */}
-        <div className="flex-1 scrollbar-thin space-y-2.5 overflow-y-auto pr-1">
+        <div className="flex-1 scrollbar-thin space-y-2.5 overflow-y-auto p-3 pt-1.5">
           {filteredEmails.length === 0 ? (
             <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
               <div className="inline-flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
@@ -270,7 +261,7 @@ export default function Mailbox() {
         className={cn(
           "flex flex-1 flex-col overflow-hidden bg-card",
           selectedEmailId
-            ? "flex rounded-none border-0 shadow-none lg:rounded-2xl lg:border lg:border-border lg:shadow-xs"
+            ? "flex rounded-none border-0 shadow-none lg:rounded-2xl lg:border lg:border-border lg:shadow-xs p-4"
             : "hidden lg:flex lg:rounded-2xl lg:border lg:border-border lg:shadow-xs items-center justify-center p-8 text-center text-muted-foreground"
         )}
       >
@@ -337,7 +328,7 @@ export default function Mailbox() {
             </div>
 
             {/* Email Body Content */}
-            <div className="flex-1 overflow-y-auto bg-muted/5 p-2 lg:p-5">
+            <div className="flex-1 overflow-y-auto bg-muted/5 p-2 lg:p-4">
               <EmailBody
                 content={selectedEmail.body || selectedEmail.snippet}
                 isHtml={!!selectedEmail.isHtml}
