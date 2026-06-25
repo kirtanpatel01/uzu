@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { getCalendarEvents, createCalendarEvent } from "./actions"
+import { getCalendarEvents, createCalendarEvent } from "@/features/calendar/actions"
 import { Spinner } from "@/components/ui/spinner"
 import { AlertCircle } from "lucide-react"
-import { CalendarHeader } from "./components/calendar-header"
-import { CalendarGrid } from "./components/calendar-grid"
-import { CalendarSidebar } from "./components/calendar-sidebar"
-import { AddEventDialog } from "./components/add-event-dialog"
+import { CalendarHeader } from "@/features/calendar/components/calendar-header"
+import { CalendarGrid } from "@/features/calendar/components/calendar-grid"
+import { CalendarSidebar } from "@/features/calendar/components/calendar-sidebar"
+import { AddEventDialog } from "@/features/calendar/components/add-event-dialog"
 
 interface CalendarEvent {
   id: string

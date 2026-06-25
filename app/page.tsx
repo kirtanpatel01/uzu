@@ -1,8 +1,8 @@
 import { getSession } from "@/lib/auth/auth-server"
-import { LoginButton } from "@/components/login-button"
+import { LoginButton } from "@/features/auth/components/login-button"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import { AppSidebar } from "@/components/layout/app-sidebar"
+import { SiteHeader } from "@/components/layout/site-header"
 import DashboardPage from "./(protected)/dashboard/page"
 
 export default async function Page() {

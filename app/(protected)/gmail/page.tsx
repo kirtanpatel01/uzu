@@ -1,4 +1,4 @@
-import Mailbox from "./components/mail-box"
+import Mailbox from "@/features/gmail/components/mail-box"
 
 export default async function GmailCloneHomePage() {
   return (

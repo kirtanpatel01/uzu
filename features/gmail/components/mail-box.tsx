@@ -23,7 +23,7 @@ import {
   getSenderEmail,
   formatShortDate,
   formatLongDate,
-} from "./mail-utils"
+} from "../utils"
 
 interface Email {
   id: string
@@ -259,7 +259,7 @@ export default function Mailbox() {
       {/* Right panel: Active Email details */}
       <div
         className={cn(
-          "flex flex-1 flex-col overflow-hidden bg-card",
+          "flex flex-1 flex-col overflow-hidden bg-background/50",
           selectedEmailId
             ? "flex"
             : "hidden items-center justify-center p-8 text-center text-muted-foreground lg:flex"

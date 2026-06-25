@@ -1,8 +1,8 @@
 import React from "react"
 // import { TooltipProvider } from '@/components/ui/tooltip'
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import { AppSidebar } from "@/components/layout/app-sidebar"
+import { SiteHeader } from "@/components/layout/site-header"
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
