@@ -1,39 +1,42 @@
 "use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { signIn } from "@/lib/auth/auth-client";
-import { Spinner } from "@/components/ui/spinner";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { signIn } from "@/lib/auth/auth-client"
+import { Spinner } from "@/components/ui/spinner"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 interface LoginButtonProps {
-  className?: string;
-  text?: string;
+  className?: string
+  text?: string
 }
 
-export function LoginButton({ className, text = "Continue with Google" }: LoginButtonProps) {
-  const [loading, setLoading] = useState(false);
+export function LoginButton({
+  className,
+  text = "Continue with Google",
+}: LoginButtonProps) {
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       await signIn.social({
         provider: "google",
         callbackURL: "/dashboard",
-      });
+      })
     } catch (e) {
-      console.error(e);
+      console.error(e)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Button
       onClick={handleLogin}
       disabled={loading}
-      className={cn("gap-2 cursor-pointer", className)}
+      className={cn("cursor-pointer gap-2", className)}
     >
       {loading ? (
         <Spinner className="size-4" />
@@ -61,5 +64,5 @@ export function LoginButton({ className, text = "Continue with Google" }: LoginB
         </>
       )}
     </Button>
-  );
+  )
 }

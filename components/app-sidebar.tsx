@@ -3,7 +3,15 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Command, LayoutDashboard, Mail, Calendar, LogOut, ChevronsUpDown, LogIn } from "lucide-react"
+import {
+  Command,
+  LayoutDashboard,
+  Mail,
+  Calendar,
+  LogOut,
+  ChevronsUpDown,
+  LogIn,
+} from "lucide-react"
 import { useSession, signIn, signOut } from "@/lib/auth/auth-client"
 import { Spinner } from "@/components/ui/spinner"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -91,7 +99,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link href="/dashboard">
                 <Command className="size-5!" />
-                <span className="text-base font-semibold text-foreground">Uzu</span>
+                <span className="text-base font-semibold text-foreground">
+                  Uzu
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -132,8 +142,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             {isPending ? (
               <div className="flex items-center gap-2 p-2">
-                <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
-                <div className="flex-1 space-y-1.5 min-w-0">
+                <Skeleton className="h-8 w-8 shrink-0 rounded-lg" />
+                <div className="min-w-0 flex-1 space-y-1.5">
                   <Skeleton className="h-3 w-2/3" />
                   <Skeleton className="h-2.5 w-1/2" />
                 </div>
@@ -141,7 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ) : !user ? (
               <SidebarMenuButton
                 size="lg"
-                className="cursor-pointer text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground gap-2"
+                className="cursor-pointer gap-2 text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 onClick={handleLogin}
               >
                 <LogIn className="size-4 shrink-0" />
@@ -152,10 +162,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+                    className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
                     <Avatar className="h-8 w-8 rounded-lg grayscale">
-                      <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
+                      <AvatarImage
+                        src={user?.image || ""}
+                        alt={user?.name || "User"}
+                      />
                       <AvatarFallback className="rounded-lg">
                         {user?.name?.slice(0, 2).toUpperCase() || "US"}
                       </AvatarFallback>
@@ -168,7 +181,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         {user?.email || "user@email.com"}
                       </span>
                     </div>
-                    <ChevronsUpDown className="ml-auto size-4 text-muted-foreground shrink-0" />
+                    <ChevronsUpDown className="ml-auto size-4 shrink-0 text-muted-foreground" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -180,7 +193,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
+                        <AvatarImage
+                          src={user?.image || ""}
+                          alt={user?.name || "User"}
+                        />
                         <AvatarFallback className="rounded-lg">
                           {user?.name?.slice(0, 2).toUpperCase() || "US"}
                         </AvatarFallback>
@@ -197,7 +213,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer gap-2"
+                    className="cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                     onClick={handleLogout}
                     disabled={loggingOut}
                   >

@@ -60,7 +60,7 @@ export const getCalendarEvents = async (year: number, month: number) => {
     const formattedEvents = events.map((event) => {
       const startStr = event.start?.dateTime || event.start?.date || ""
       const endStr = event.end?.dateTime || event.end?.date || ""
-      
+
       // Generate standard YYYY-MM-DD date key matching local timezone calculations
       const d = new Date(startStr)
       const yr = d.getFullYear()
@@ -182,4 +182,3 @@ export const createCalendarEvent = async (eventData: {
     }
   }
 }
-

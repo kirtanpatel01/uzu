@@ -72,7 +72,10 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="to" className="text-xs font-semibold text-muted-foreground">
+            <label
+              htmlFor="to"
+              className="text-xs font-semibold text-muted-foreground"
+            >
               To
             </label>
             <Input
@@ -87,7 +90,10 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="subject" className="text-xs font-semibold text-muted-foreground">
+            <label
+              htmlFor="subject"
+              className="text-xs font-semibold text-muted-foreground"
+            >
               Subject
             </label>
             <Input
@@ -102,20 +108,17 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="body" className="text-xs font-semibold text-muted-foreground">
+            <label
+              htmlFor="body"
+              className="text-xs font-semibold text-muted-foreground"
+            >
               Message
             </label>
-            <EmailEditor
-              value={body}
-              onChange={setBody}
-              disabled={loading}
-            />
+            <EmailEditor value={body} onChange={setBody} disabled={loading} />
           </div>
 
           {error && (
-            <p className="text-xs font-medium text-destructive">
-              {error}
-            </p>
+            <p className="text-xs font-medium text-destructive">{error}</p>
           )}
 
           {success && (

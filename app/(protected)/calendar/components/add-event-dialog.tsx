@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { FieldGroup, Field, FieldLabel } from "@/components/ui/field";
-import { Spinner } from "@/components/ui/spinner";
+import React, { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -11,28 +11,32 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 
 interface AddEventDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedDate: Date | null;
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  selectedDate: Date | null
   onAddEvent: (eventData: {
-    title: string;
-    description: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-  }) => Promise<void>;
-  isSubmitting: boolean;
+    title: string
+    description: string
+    date: string
+    startTime: string
+    endTime: string
+    location: string
+  }) => Promise<void>
+  isSubmitting: boolean
 }
 
 export function AddEventDialog({
@@ -42,35 +46,35 @@ export function AddEventDialog({
   onAddEvent,
   isSubmitting,
 }: AddEventDialogProps) {
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventDate, setEventDate] = useState<Date | undefined>(undefined);
-  const [eventStartTime, setEventStartTime] = useState("09:00");
-  const [eventEndTime, setEventEndTime] = useState("10:00");
-  const [eventLocation, setEventLocation] = useState("");
-  const [eventDescription, setEventDescription] = useState("");
+  const [eventTitle, setEventTitle] = useState("")
+  const [eventDate, setEventDate] = useState<Date | undefined>(undefined)
+  const [eventStartTime, setEventStartTime] = useState("09:00")
+  const [eventEndTime, setEventEndTime] = useState("10:00")
+  const [eventLocation, setEventLocation] = useState("")
+  const [eventDescription, setEventDescription] = useState("")
 
   // Reset/populate fields when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setEventTitle("");
-      setEventDate(selectedDate || new Date());
-      setEventStartTime("09:00");
-      setEventEndTime("10:00");
-      setEventLocation("");
-      setEventDescription("");
+      setEventTitle("")
+      setEventDate(selectedDate || new Date())
+      setEventStartTime("09:00")
+      setEventEndTime("10:00")
+      setEventLocation("")
+      setEventDescription("")
     }
-  }, [isOpen, selectedDate]);
+  }, [isOpen, selectedDate])
 
   const formatDateForSubmit = (d: Date) => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!eventTitle.trim() || !eventDate) return;
+    e.preventDefault()
+    if (!eventTitle.trim() || !eventDate) return
 
     await onAddEvent({
       title: eventTitle,
@@ -79,11 +83,14 @@ export function AddEventDialog({
       startTime: eventStartTime,
       endTime: eventEndTime,
       location: eventLocation,
-    });
-  };
+    })
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !isSubmitting && onOpenChange(open)}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !isSubmitting && onOpenChange(open)}
+    >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Event</DialogTitle>
@@ -115,12 +122,16 @@ export function AddEventDialog({
                     variant="outline"
                     disabled={isSubmitting}
                     className={cn(
-                      "w-full justify-start text-left font-normal border border-input h-10 px-3 py-2",
+                      "h-10 w-full justify-start border border-input px-3 py-2 text-left font-normal",
                       !eventDate && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
-                    {eventDate ? format(eventDate, "PPP") : <span>Pick a date</span>}
+                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                    {eventDate ? (
+                      format(eventDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -159,7 +170,9 @@ export function AddEventDialog({
             </div>
 
             <Field>
-              <FieldLabel htmlFor="event-location">Location (Optional)</FieldLabel>
+              <FieldLabel htmlFor="event-location">
+                Location (Optional)
+              </FieldLabel>
               <Input
                 id="event-location"
                 disabled={isSubmitting}
@@ -170,7 +183,9 @@ export function AddEventDialog({
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="event-desc">Description (Optional)</FieldLabel>
+              <FieldLabel htmlFor="event-desc">
+                Description (Optional)
+              </FieldLabel>
               <Textarea
                 id="event-desc"
                 disabled={isSubmitting}
@@ -189,7 +204,10 @@ export function AddEventDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !eventTitle.trim() || !eventDate}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !eventTitle.trim() || !eventDate}
+            >
               {isSubmitting ? (
                 <span className="flex items-center gap-1">
                   <Spinner className="size-3" />
@@ -203,5 +221,5 @@ export function AddEventDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

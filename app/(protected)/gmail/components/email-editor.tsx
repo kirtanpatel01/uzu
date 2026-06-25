@@ -23,7 +23,11 @@ interface EmailEditorProps {
   disabled?: boolean
 }
 
-export function EmailEditor({ value, onChange, disabled = false }: EmailEditorProps) {
+export function EmailEditor({
+  value,
+  onChange,
+  disabled = false,
+}: EmailEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -83,18 +87,19 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
   return (
     <div
       className={cn(
-        "flex flex-col border border-border rounded-xl overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/10 focus-within:border-primary/30",
-        disabled && "opacity-60 pointer-events-none bg-muted/20"
+        "flex flex-col overflow-hidden rounded-xl border border-border transition-all duration-200 focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/10",
+        disabled && "pointer-events-none bg-muted/20 opacity-60"
       )}
     >
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 bg-muted/20 border-b border-border p-1.5 select-none">
+      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-muted/20 p-1.5 select-none">
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={cn(
-            "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 transition-all duration-150",
-            editor.isActive("bold") && "bg-primary/10 text-primary hover:bg-primary/15"
+            "rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+            editor.isActive("bold") &&
+              "bg-primary/10 text-primary hover:bg-primary/15"
           )}
           title="Bold"
         >
@@ -105,8 +110,9 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={cn(
-            "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 transition-all duration-150",
-            editor.isActive("italic") && "bg-primary/10 text-primary hover:bg-primary/15"
+            "rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+            editor.isActive("italic") &&
+              "bg-primary/10 text-primary hover:bg-primary/15"
           )}
           title="Italic"
         >
@@ -117,22 +123,24 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={cn(
-            "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 transition-all duration-150",
-            editor.isActive("underline") && "bg-primary/10 text-primary hover:bg-primary/15"
+            "rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+            editor.isActive("underline") &&
+              "bg-primary/10 text-primary hover:bg-primary/15"
           )}
           title="Underline"
         >
           <UnderlineIcon className="size-4" />
         </button>
 
-        <div className="h-4 w-px bg-border mx-1" />
+        <div className="mx-1 h-4 w-px bg-border" />
 
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={cn(
-            "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 transition-all duration-150",
-            editor.isActive("bulletList") && "bg-primary/10 text-primary hover:bg-primary/15"
+            "rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+            editor.isActive("bulletList") &&
+              "bg-primary/10 text-primary hover:bg-primary/15"
           )}
           title="Bullet List"
         >
@@ -143,8 +151,9 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={cn(
-            "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 transition-all duration-150",
-            editor.isActive("orderedList") && "bg-primary/10 text-primary hover:bg-primary/15"
+            "rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+            editor.isActive("orderedList") &&
+              "bg-primary/10 text-primary hover:bg-primary/15"
           )}
           title="Numbered List"
         >
@@ -155,21 +164,22 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
           type="button"
           onClick={setLink}
           className={cn(
-            "p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 transition-all duration-150",
-            editor.isActive("link") && "bg-primary/10 text-primary hover:bg-primary/15"
+            "rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+            editor.isActive("link") &&
+              "bg-primary/10 text-primary hover:bg-primary/15"
           )}
           title="Add Link"
         >
           <Link2 className="size-4" />
         </button>
 
-        <div className="h-4 w-px bg-border mx-1 ml-auto" />
+        <div className="mx-1 ml-auto h-4 w-px bg-border" />
 
         <button
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
-          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-150"
+          className="rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95 disabled:pointer-events-none disabled:opacity-40"
           title="Undo"
         >
           <Undo2 className="size-4" />
@@ -179,7 +189,7 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
           type="button"
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
-          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-150"
+          className="rounded-lg p-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95 disabled:pointer-events-none disabled:opacity-40"
           title="Redo"
         >
           <Redo2 className="size-4" />
@@ -189,7 +199,7 @@ export function EmailEditor({ value, onChange, disabled = false }: EmailEditorPr
       {/* Editor Content Area */}
       <EditorContent
         editor={editor}
-        className="p-4 min-h-[220px] max-h-[350px] overflow-y-auto cursor-text text-sm leading-relaxed"
+        className="max-h-[350px] min-h-[220px] cursor-text overflow-y-auto p-4 text-sm leading-relaxed"
       />
     </div>
   )

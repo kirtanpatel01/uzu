@@ -116,14 +116,14 @@ export default function Mailbox() {
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col items-stretch lg:flex-row",
+        "flex h-full w-full flex-col items-stretch lg:flex-row"
         // selectedEmailId ? "px-0 pb-0 lg:p-4" : "p-4"
       )}
     >
       {/* Left panel: Mail list */}
       <div
         className={cn(
-          "flex h-full w-full shrink-0 flex-col lg:w-[350px] xl:w-[400px] border-r",
+          "flex h-full w-full shrink-0 flex-col border-r lg:w-[350px] xl:w-[400px]",
           selectedEmailId && "hidden lg:flex" // Hide list on mobile if email is open
         )}
       >
@@ -261,8 +261,8 @@ export default function Mailbox() {
         className={cn(
           "flex flex-1 flex-col overflow-hidden bg-card",
           selectedEmailId
-            ? "flex rounded-none border-0 shadow-none lg:rounded-2xl lg:border lg:border-border lg:shadow-xs p-4"
-            : "hidden lg:flex lg:rounded-2xl lg:border lg:border-border lg:shadow-xs items-center justify-center p-8 text-center text-muted-foreground"
+            ? "flex"
+            : "hidden items-center justify-center p-8 text-center text-muted-foreground lg:flex"
         )}
       >
         {selectedEmail ? (
@@ -302,13 +302,17 @@ export default function Mailbox() {
                         <span className="text-sm font-semibold text-foreground">
                           {cleanSender(selectedEmail.from)}
                         </span>
-                        <span className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-semibold border shadow-2xs select-none",
-                          selectedEmail.labelIds?.includes("SENT")
-                            ? "bg-blue-500/10 text-blue-600 border-blue-200/40 dark:text-blue-400 dark:border-blue-900/30"
-                            : "bg-emerald-500/10 text-emerald-600 border-emerald-200/40 dark:text-emerald-400 dark:border-emerald-900/30"
-                        )}>
-                          {selectedEmail.labelIds?.includes("SENT") ? "Sent" : "Inbox"}
+                        <span
+                          className={cn(
+                            "rounded-full border px-2 py-0.5 text-[10px] font-semibold shadow-2xs select-none",
+                            selectedEmail.labelIds?.includes("SENT")
+                              ? "border-blue-200/40 bg-blue-500/10 text-blue-600 dark:border-blue-900/30 dark:text-blue-400"
+                              : "border-emerald-200/40 bg-emerald-500/10 text-emerald-600 dark:border-emerald-900/30 dark:text-emerald-400"
+                          )}
+                        >
+                          {selectedEmail.labelIds?.includes("SENT")
+                            ? "Sent"
+                            : "Inbox"}
                         </span>
                       </div>
                       {getSenderEmail(selectedEmail.from) && (

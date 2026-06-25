@@ -1,15 +1,15 @@
-"use client";
+"use client"
 
-import React from "react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from "react"
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface CalendarHeaderProps {
-  currentDate: Date;
-  onPrevMonth: () => void;
-  onNextMonth: () => void;
-  onToday: () => void;
-  onNewEventClick: () => void;
+  currentDate: Date
+  onPrevMonth: () => void
+  onNextMonth: () => void
+  onToday: () => void
+  onNewEventClick: () => void
 }
 
 export function CalendarHeader({
@@ -20,7 +20,7 @@ export function CalendarHeader({
   onNewEventClick,
 }: CalendarHeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-card border-b border-border">
+    <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4">
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {currentDate.toLocaleDateString("en-US", {
@@ -28,7 +28,7 @@ export function CalendarHeader({
             year: "numeric",
           })}
         </h1>
-        <div className="flex gap-1 items-center">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -37,11 +37,7 @@ export function CalendarHeader({
           >
             <ChevronLeft />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onToday}
-          >
+          <Button variant="outline" size="sm" onClick={onToday}>
             Today
           </Button>
           <Button
@@ -61,5 +57,5 @@ export function CalendarHeader({
         </Button>
       </div>
     </header>
-  );
+  )
 }

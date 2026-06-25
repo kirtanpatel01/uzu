@@ -11,39 +11,39 @@ export const getUser = async (): Promise<User | undefined> => {
 }
 
 function getEmailBody(payload: any): { body: string; isHtml: boolean } {
-  let html = "";
-  let text = "";
+  let html = ""
+  let text = ""
 
   function parsePart(part: any) {
-    if (!part) return;
+    if (!part) return
 
     if (part.body && part.body.data) {
       const decoded = Buffer.from(
         part.body.data.replace(/-/g, "+").replace(/_/g, "/"),
         "base64"
-      ).toString("utf-8");
+      ).toString("utf-8")
 
-      const mime = part.mimeType?.toLowerCase();
+      const mime = part.mimeType?.toLowerCase()
       if (mime === "text/html") {
-        html += decoded;
+        html += decoded
       } else if (mime === "text/plain") {
-        text += decoded;
+        text += decoded
       }
     }
 
     if (part.parts) {
       for (const subPart of part.parts) {
-        parsePart(subPart);
+        parsePart(subPart)
       }
     }
   }
 
-  parsePart(payload);
+  parsePart(payload)
 
   if (html) {
-    return { body: html, isHtml: true };
+    return { body: html, isHtml: true }
   }
-  return { body: text || payload?.snippet || "", isHtml: false };
+  return { body: text || payload?.snippet || "", isHtml: false }
 }
 
 export const getEmails = async () => {
@@ -103,9 +103,14 @@ export const getEmails = async () => {
       const detail = detailResponse.data
       const headers = detail.payload?.headers || []
 
-      const subject = headers.find((h) => h.name?.toLowerCase() === "subject")?.value || "(No Subject)"
-      const from = headers.find((h) => h.name?.toLowerCase() === "from")?.value || "Unknown Sender"
-      const date = headers.find((h) => h.name?.toLowerCase() === "date")?.value || ""
+      const subject =
+        headers.find((h) => h.name?.toLowerCase() === "subject")?.value ||
+        "(No Subject)"
+      const from =
+        headers.find((h) => h.name?.toLowerCase() === "from")?.value ||
+        "Unknown Sender"
+      const date =
+        headers.find((h) => h.name?.toLowerCase() === "date")?.value || ""
 
       const { body, isHtml } = getEmailBody(detail.payload)
 
@@ -170,7 +175,7 @@ export const sendEmail = async (to: string, subject: string, body: string) => {
 
     // Construct raw MIME email message
     // Base64 encode the subject to safely handle Unicode/non-ASCII characters
-    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`
     const messageParts = [
       `To: ${to}`,
       `Subject: ${utf8Subject}`,
@@ -178,15 +183,15 @@ export const sendEmail = async (to: string, subject: string, body: string) => {
       "MIME-Version: 1.0",
       "",
       body,
-    ];
-    const rawMessage = messageParts.join("\n");
-    
+    ]
+    const rawMessage = messageParts.join("\n")
+
     // Base64url encode the entire email
     const encodedMessage = Buffer.from(rawMessage)
       .toString("base64")
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
-      .replace(/=+$/, "");
+      .replace(/=+$/, "")
 
     await gmail.users.messages.send({
       userId: "me",

@@ -14,11 +14,14 @@ export function EmailBody({ content, isHtml }: EmailBodyProps) {
     const iframe = iframeRef.current
     if (!iframe) return
 
+    // Reset height state when content changes
+    setHeight("200px")
+
     const handleResize = () => {
       try {
         const doc = iframe.contentDocument || iframe.contentWindow?.document
         if (doc && doc.body) {
-          // Temporarily shrink height to measure true scrollHeight without growing indefinitely
+          // Measure true scrollHeight without growing indefinitely
           iframe.style.height = "0px"
           const newHeight =
             doc.documentElement.scrollHeight || doc.body.scrollHeight
@@ -32,8 +35,8 @@ export function EmailBody({ content, isHtml }: EmailBodyProps) {
 
     iframe.addEventListener("load", handleResize)
 
-    // Also try running it after a small timeout to let dynamic resources/images load
-    const timer = setTimeout(handleResize, 500)
+    // Run after a small timeout to let dynamic resources/images load
+    const timer = setTimeout(handleResize, 150)
 
     return () => {
       iframe.removeEventListener("load", handleResize)
@@ -111,7 +114,7 @@ export function EmailBody({ content, isHtml }: EmailBodyProps) {
         srcDoc={styledContent}
         style={{ height, width: "100%", border: "none", overflow: "hidden" }}
         sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        className="w-full transition-all duration-300"
+        className="w-full"
       />
     </div>
   )
