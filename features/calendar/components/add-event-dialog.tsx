@@ -28,14 +28,26 @@ interface AddEventDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   selectedDate: Date | null
-  onAddEvent: (eventData: {
+  editingEvent: {
+    id: string
     title: string
-    description: string
+    description?: string
     date: string
-    startTime: string
-    endTime: string
-    location: string
-  }) => Promise<void>
+    location?: string
+    start?: string
+    end?: string
+  } | null
+  onSaveEvent: (
+    eventData: {
+      title: string
+      description: string
+      date: string
+      startTime: string
+      endTime: string
+      location: string
+    },
+    eventId?: string
+  ) => Promise<void>
   isSubmitting: boolean
 }
 
@@ -43,7 +55,8 @@ export function AddEventDialog({
   isOpen,
   onOpenChange,
   selectedDate,
-  onAddEvent,
+  editingEvent,
+  onSaveEvent,
   isSubmitting,
 }: AddEventDialogProps) {
   const [eventTitle, setEventTitle] = useState("")
@@ -56,14 +69,45 @@ export function AddEventDialog({
   // Reset/populate fields when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setEventTitle("")
-      setEventDate(selectedDate || new Date())
-      setEventStartTime("09:00")
-      setEventEndTime("10:00")
-      setEventLocation("")
-      setEventDescription("")
+      if (editingEvent) {
+        setEventTitle(editingEvent.title)
+        setEventDate(new Date(editingEvent.start || editingEvent.date))
+        setEventLocation(editingEvent.location || "")
+        setEventDescription(editingEvent.description || "")
+
+        const startStr = editingEvent.start || ""
+        if (startStr.includes("T")) {
+          const dStart = new Date(startStr)
+          setEventStartTime(
+            `${String(dStart.getHours()).padStart(2, "0")}:${String(
+              dStart.getMinutes()
+            ).padStart(2, "0")}`
+          )
+        } else {
+          setEventStartTime("09:00")
+        }
+
+        const endStr = editingEvent.end || ""
+        if (endStr.includes("T")) {
+          const dEnd = new Date(endStr)
+          setEventEndTime(
+            `${String(dEnd.getHours()).padStart(2, "0")}:${String(
+              dEnd.getMinutes()
+            ).padStart(2, "0")}`
+          )
+        } else {
+          setEventEndTime("10:00")
+        }
+      } else {
+        setEventTitle("")
+        setEventDate(selectedDate || new Date())
+        setEventStartTime("09:00")
+        setEventEndTime("10:00")
+        setEventLocation("")
+        setEventDescription("")
+      }
     }
-  }, [isOpen, selectedDate])
+  }, [isOpen, selectedDate, editingEvent])
 
   const formatDateForSubmit = (d: Date) => {
     const year = d.getFullYear()
@@ -76,14 +120,14 @@ export function AddEventDialog({
     e.preventDefault()
     if (!eventTitle.trim() || !eventDate) return
 
-    await onAddEvent({
+    await onSaveEvent({
       title: eventTitle,
       description: eventDescription,
       date: formatDateForSubmit(eventDate),
       startTime: eventStartTime,
       endTime: eventEndTime,
       location: eventLocation,
-    })
+    }, editingEvent?.id)
   }
 
   return (
@@ -93,9 +137,11 @@ export function AddEventDialog({
     >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Event</DialogTitle>
+          <DialogTitle>{editingEvent ? "Edit Event" : "Add Event"}</DialogTitle>
           <DialogDescription>
-            Create a new event for your Google Calendar.
+            {editingEvent
+              ? "Update this event on your Google Calendar."
+              : "Create a new event for your Google Calendar."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">

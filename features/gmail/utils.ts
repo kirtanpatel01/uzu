@@ -73,3 +73,62 @@ export function formatLongDate(dateStr: string) {
   } catch (e) {}
   return dateStr
 }
+
+export function getEmailBody(payload: any): { body: string; isHtml: boolean } {
+  let html = ""
+  let text = ""
+
+  function parsePart(part: any) {
+    if (!part) return
+
+    if (part.body && part.body.data) {
+      const decoded = Buffer.from(
+        part.body.data.replace(/-/g, "+").replace(/_/g, "/"),
+        "base64"
+      ).toString("utf-8")
+
+      const mime = part.mimeType?.toLowerCase()
+      if (mime === "text/html") {
+        html += decoded
+      } else if (mime === "text/plain") {
+        text += decoded
+      }
+    }
+
+    if (part.parts) {
+      for (const subPart of part.parts) {
+        parsePart(subPart)
+      }
+    }
+  }
+
+  parsePart(payload)
+
+  if (html) {
+    return { body: html, isHtml: true }
+  }
+  return { body: text || payload?.snippet || "", isHtml: false }
+}
+
+export function encodeMimeMessage(to: string, subject: string, body: string): string {
+  // Construct raw MIME email message
+  // Base64 encode the subject to safely handle Unicode/non-ASCII characters
+  const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`
+  const messageParts = [
+    `To: ${to}`,
+    `Subject: ${utf8Subject}`,
+    "Content-Type: text/html; charset=utf-8",
+    "MIME-Version: 1.0",
+    "",
+    body,
+  ]
+  const rawMessage = messageParts.join("\n")
+
+  // Base64url encode the entire email
+  return Buffer.from(rawMessage)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
+}
+

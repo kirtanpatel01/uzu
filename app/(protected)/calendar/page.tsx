@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { getCalendarEvents, createCalendarEvent } from "@/features/calendar/actions"
+import { getCalendarEvents, createCalendarEvent, getCalendarAvailability, deleteCalendarEvent, updateCalendarEvent } from "@/features/calendar/actions"
 import { Spinner } from "@/components/ui/spinner"
 import { AlertCircle } from "lucide-react"
 import { CalendarHeader } from "@/features/calendar/components/calendar-header"
@@ -26,8 +26,10 @@ export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
 
   const [events, setEvents] = useState<Record<string, CalendarEvent[]>>({})
+  const [busyDates, setBusyDates] = useState<Set<string> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -47,14 +49,19 @@ export default function CalendarPage() {
       try {
         const year = currentDate.getFullYear()
         const month = currentDate.getMonth() // 0-indexed
-        const res = await getCalendarEvents(year, month)
+
+        // Fetch events and availability in parallel
+        const [eventsRes, availabilityRes] = await Promise.all([
+          getCalendarEvents(year, month),
+          getCalendarAvailability(year, month),
+        ])
 
         if (!active) return
 
-        if (res.success && res.data) {
+        if (eventsRes.success && eventsRes.data) {
           // Group events by date key YYYY-MM-DD
           const grouped: Record<string, CalendarEvent[]> = {}
-          res.data.forEach((evt) => {
+          eventsRes.data.forEach((evt) => {
             const dateKey = evt.date
             if (!grouped[dateKey]) {
               grouped[dateKey] = []
@@ -63,7 +70,24 @@ export default function CalendarPage() {
           })
           setEvents(grouped)
         } else {
-          setError(res.message || "Failed to retrieve calendar events.")
+          setError(eventsRes.message || "Failed to retrieve calendar events.")
+        }
+
+        if (availabilityRes.success && availabilityRes.data) {
+          const busySet = new Set<string>()
+          availabilityRes.data.forEach((busy: { start?: string; end?: string }) => {
+            if (busy.start) {
+              const d = new Date(busy.start)
+              const yr = d.getFullYear()
+              const m = String(d.getMonth() + 1).padStart(2, "0")
+              const day = String(d.getDate()).padStart(2, "0")
+              const dateKey = `${yr}-${m}-${day}`
+              busySet.add(dateKey)
+            }
+          })
+          setBusyDates(busySet)
+        } else {
+          setBusyDates(new Set())
         }
       } catch (err: any) {
         if (active) {
@@ -99,24 +123,43 @@ export default function CalendarPage() {
     setSelectedEvent(null)
   }
 
-  const handleAddEvent = async (eventData: {
+  const handleNewEventClick = () => {
+    setEditingEvent(null)
+    setIsDialogOpen(true)
+  }
+
+  const handleEditEventClick = (event: CalendarEvent) => {
+    setEditingEvent(event)
+    setIsDialogOpen(true)
+  }
+
+  const handleSaveEvent = async (eventData: {
     title: string
     description: string
     date: string
     startTime: string
     endTime: string
     location: string
-  }) => {
+  }, eventId?: string) => {
     setIsSubmitting(true)
     setError(null)
     try {
-      const res = await createCalendarEvent(eventData)
+      const res = eventId
+        ? await updateCalendarEvent(eventId, eventData)
+        : await createCalendarEvent(eventData)
+
       if (res.success) {
         setIsDialogOpen(false)
-        // Refresh local events list for current viewed month
+        setEditingEvent(null)
+        setSelectedEvent(null)
+        // Refresh local events list and availability for current viewed month
         const year = currentDate.getFullYear()
         const month = currentDate.getMonth()
-        const fetchRes = await getCalendarEvents(year, month)
+        const [fetchRes, availabilityRes] = await Promise.all([
+          getCalendarEvents(year, month),
+          getCalendarAvailability(year, month),
+        ])
+
         if (fetchRes.success && fetchRes.data) {
           const grouped: Record<string, CalendarEvent[]> = {}
           fetchRes.data.forEach((evt) => {
@@ -128,13 +171,80 @@ export default function CalendarPage() {
           })
           setEvents(grouped)
         }
+
+        if (availabilityRes.success && availabilityRes.data) {
+          const busySet = new Set<string>()
+          availabilityRes.data.forEach((busy: { start?: string; end?: string }) => {
+            if (busy.start) {
+              const d = new Date(busy.start)
+              const yr = d.getFullYear()
+              const m = String(d.getMonth() + 1).padStart(2, "0")
+              const day = String(d.getDate()).padStart(2, "0")
+              const dateKey = `${yr}-${m}-${day}`
+              busySet.add(dateKey)
+            }
+          })
+          setBusyDates(busySet)
+        }
       } else {
-        setError(res.message || "Failed to create calendar event.")
+        setError(res.message || `Failed to ${eventId ? "update" : "create"} calendar event.`)
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm("Are you sure you want to delete this event?")) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await deleteCalendarEvent(eventId)
+      if (res.success) {
+        setSelectedEvent(null)
+        // Refresh events & availability
+        const year = currentDate.getFullYear()
+        const month = currentDate.getMonth()
+        const [fetchRes, availabilityRes] = await Promise.all([
+          getCalendarEvents(year, month),
+          getCalendarAvailability(year, month),
+        ])
+
+        if (fetchRes.success && fetchRes.data) {
+          const grouped: Record<string, CalendarEvent[]> = {}
+          fetchRes.data.forEach((evt) => {
+            const dateKey = evt.date
+            if (!grouped[dateKey]) {
+              grouped[dateKey] = []
+            }
+            grouped[dateKey].push(evt)
+          })
+          setEvents(grouped)
+        }
+
+        if (availabilityRes.success && availabilityRes.data) {
+          const busySet = new Set<string>()
+          availabilityRes.data.forEach((busy: { start?: string; end?: string }) => {
+            if (busy.start) {
+              const d = new Date(busy.start)
+              const yr = d.getFullYear()
+              const m = String(d.getMonth() + 1).padStart(2, "0")
+              const day = String(d.getDate()).padStart(2, "0")
+              const dateKey = `${yr}-${m}-${day}`
+              busySet.add(dateKey)
+            }
+          })
+          setBusyDates(busySet)
+        }
+      } else {
+        setError(res.message || "Failed to delete calendar event.")
+      }
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -156,7 +266,7 @@ export default function CalendarPage() {
           setSelectedDate(today)
           setSelectedEvent(null)
         }}
-        onNewEventClick={() => setIsDialogOpen(true)}
+        onNewEventClick={handleNewEventClick}
       />
 
       {/* Main Content */}
@@ -182,6 +292,7 @@ export default function CalendarPage() {
             onSelectDate={handleSelectDate}
             events={events}
             onSelectEvent={setSelectedEvent}
+            busyDates={busyDates}
           />
         </div>
 
@@ -189,9 +300,11 @@ export default function CalendarPage() {
         <CalendarSidebar
           selectedDate={selectedDate}
           events={selectedDateEvents}
-          onAddEventClick={() => setIsDialogOpen(true)}
+          onAddEventClick={handleNewEventClick}
           selectedEvent={selectedEvent}
           onSelectEvent={setSelectedEvent}
+          onEditEvent={handleEditEventClick}
+          onDeleteEvent={handleDeleteEvent}
         />
       </div>
 
@@ -200,7 +313,8 @@ export default function CalendarPage() {
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         selectedDate={selectedDate}
-        onAddEvent={handleAddEvent}
+        editingEvent={editingEvent}
+        onSaveEvent={handleSaveEvent}
         isSubmitting={isSubmitting}
       />
     </div>

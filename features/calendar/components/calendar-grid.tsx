@@ -21,6 +21,7 @@ interface CalendarGridProps {
   onSelectDate: (date: Date) => void
   events: Record<string, CalendarEvent[]>
   onSelectEvent: (event: CalendarEvent) => void
+  busyDates: Set<string> | null
 }
 
 export function CalendarGrid({
@@ -29,6 +30,7 @@ export function CalendarGrid({
   onSelectDate,
   events,
   onSelectEvent,
+  busyDates,
 }: CalendarGridProps) {
   const formatDateKey = (date: Date) => {
     const year = date.getFullYear()
@@ -89,6 +91,7 @@ export function CalendarGrid({
               const isToday = formatDateKey(new Date()) === cellDateKey
 
               const dayEvents = events[cellDateKey] || []
+              const isAvailable = busyDates !== null && !busyDates.has(cellDateKey)
 
               return (
                 <div
@@ -96,7 +99,9 @@ export function CalendarGrid({
                   className={`flex h-32 cursor-pointer flex-col justify-between rounded-lg border p-2 transition-all ${
                     isSelected
                       ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-border hover:border-primary/40 hover:bg-accent"
+                      : isAvailable
+                        ? "border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/40 hover:bg-emerald-500/10 dark:bg-emerald-950/20"
+                        : "border-border hover:border-primary/40 hover:bg-accent"
                   }`}
                   onClick={() => onSelectDate(cellDate)}
                 >

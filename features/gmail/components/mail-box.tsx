@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { getEmails } from "../actions"
+import { getEmailsUsingCorsair } from "../actions"
 import {
   MailOpen,
   AlertCircle,
@@ -58,7 +58,7 @@ export default function Mailbox() {
     setError(null)
 
     try {
-      const res = await getEmails()
+      const res = await getEmailsUsingCorsair()
       if (res && res.success && res.data) {
         setEmails(res.data)
       } else {

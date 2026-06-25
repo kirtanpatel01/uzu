@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Plus, Clock, MapPin, AlignLeft, ArrowLeft } from "lucide-react"
+import { Plus, Clock, MapPin, AlignLeft, ArrowLeft, Trash2, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -29,6 +29,8 @@ interface CalendarSidebarProps {
   onAddEventClick: () => void
   selectedEvent: CalendarEvent | null
   onSelectEvent: (event: CalendarEvent | null) => void
+  onEditEvent: (event: CalendarEvent) => void
+  onDeleteEvent: (eventId: string) => Promise<void>
 }
 
 const renderTextWithLinks = (text: string) => {
@@ -61,22 +63,46 @@ export function CalendarSidebar({
   onAddEventClick,
   selectedEvent,
   onSelectEvent,
+  onEditEvent,
+  onDeleteEvent,
 }: CalendarSidebarProps) {
   if (selectedEvent) {
     return (
       <aside className="hidden h-full w-80 shrink-0 flex-col border-l border-border bg-card md:flex">
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onSelectEvent(null)}
-            title="Back to list"
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <span className="text-sm font-medium text-muted-foreground">
-            Event Details
-          </span>
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onSelectEvent(null)}
+              title="Back to list"
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+            <span className="text-sm font-medium text-muted-foreground">
+              Event Details
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-lg hover:bg-muted hover:text-primary"
+              onClick={() => onEditEvent(selectedEvent)}
+              title="Edit Event"
+            >
+              <Pencil className="size-3.5 text-muted-foreground" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-lg hover:bg-muted hover:text-destructive"
+              onClick={() => onDeleteEvent(selectedEvent.id)}
+              title="Delete Event"
+            >
+              <Trash2 className="size-3.5 text-muted-foreground" />
+            </Button>
+          </div>
         </div>
         <ScrollArea className="min-h-0 flex-1">
           <div className="space-y-4 p-4">
