@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { getCalendarEvents, createCalendarEvent, getCalendarAvailability, deleteCalendarEvent, updateCalendarEvent } from "@/features/calendar/actions"
 import { Spinner } from "@/components/ui/spinner"
-import { AlertCircle } from "lucide-react"
+import { toast } from "sonner"
 import { CalendarHeader } from "@/features/calendar/components/calendar-header"
 import { CalendarGrid } from "@/features/calendar/components/calendar-grid"
 import { CalendarSidebar } from "@/features/calendar/components/calendar-sidebar"
@@ -31,7 +31,6 @@ export default function CalendarPage() {
   const [events, setEvents] = useState<Record<string, CalendarEvent[]>>({})
   const [busyDates, setBusyDates] = useState<Set<string> | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   const formatDateKey = (date: Date) => {
     const year = date.getFullYear()
@@ -45,7 +44,6 @@ export default function CalendarPage() {
 
     async function fetchEvents() {
       setLoading(true)
-      setError(null)
       try {
         const year = currentDate.getFullYear()
         const month = currentDate.getMonth() // 0-indexed
@@ -70,7 +68,7 @@ export default function CalendarPage() {
           })
           setEvents(grouped)
         } else {
-          setError(eventsRes.message || "Failed to retrieve calendar events.")
+          toast.error(eventsRes.message || "Failed to retrieve calendar events.")
         }
 
         if (availabilityRes.success && availabilityRes.data) {
@@ -91,7 +89,7 @@ export default function CalendarPage() {
         }
       } catch (err: any) {
         if (active) {
-          setError("An error occurred while loading your calendar events.")
+          toast.error("An error occurred while loading your calendar events.")
         }
       } finally {
         if (active) {
@@ -142,13 +140,13 @@ export default function CalendarPage() {
     location: string
   }, eventId?: string) => {
     setIsSubmitting(true)
-    setError(null)
     try {
       const res = eventId
         ? await updateCalendarEvent(eventId, eventData)
         : await createCalendarEvent(eventData)
 
       if (res.success) {
+        toast.success(eventId ? "Event updated successfully" : "Event created successfully")
         setIsDialogOpen(false)
         setEditingEvent(null)
         setSelectedEvent(null)
@@ -187,10 +185,10 @@ export default function CalendarPage() {
           setBusyDates(busySet)
         }
       } else {
-        setError(res.message || `Failed to ${eventId ? "update" : "create"} calendar event.`)
+        toast.error(res.message || `Failed to ${eventId ? "update" : "create"} calendar event.`)
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.")
+      toast.error(err.message || "An unexpected error occurred.")
     } finally {
       setIsSubmitting(false)
     }
@@ -199,10 +197,10 @@ export default function CalendarPage() {
   const handleDeleteEvent = async (eventId: string) => {
     if (!confirm("Are you sure you want to delete this event?")) return
     setLoading(true)
-    setError(null)
     try {
       const res = await deleteCalendarEvent(eventId)
       if (res.success) {
+        toast.success("Event deleted successfully")
         setSelectedEvent(null)
         // Refresh events & availability
         const year = currentDate.getFullYear()
@@ -239,10 +237,10 @@ export default function CalendarPage() {
           setBusyDates(busySet)
         }
       } else {
-        setError(res.message || "Failed to delete calendar event.")
+        toast.error(res.message || "Failed to delete calendar event.")
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.")
+      toast.error(err.message || "An unexpected error occurred.")
     } finally {
       setLoading(false)
     }
@@ -276,13 +274,6 @@ export default function CalendarPage() {
           {loading && (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
               <Spinner className="size-8" />
-            </div>
-          )}
-
-          {error && (
-            <div className="flex items-center gap-3 border-b border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
-              <AlertCircle className="size-4 shrink-0" />
-              <span>{error}</span>
             </div>
           )}
 

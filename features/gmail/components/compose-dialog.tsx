@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { sendEmail } from "../actions"
 import { EmailEditor } from "./email-editor"
+import { toast } from "sonner"
 
 interface ComposeDialogProps {
   open: boolean
@@ -24,40 +25,32 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
   const [subject, setSubject] = useState("")
   const [body, setBody] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const plainText = body.replace(/<[^>]*>/g, "").trim()
     if (!to || !subject || !plainText) {
-      setError("Please fill in all fields.")
+      toast.error("Please fill in all fields.")
       return
     }
 
     setLoading(true)
-    setError(null)
-    setSuccess(false)
 
     try {
       const res = await sendEmail(to, subject, body)
       if (res && res.success) {
-        setSuccess(true)
+        toast.success("Email sent successfully!")
         // Reset form
         setTo("")
         setSubject("")
         setBody("")
-        // Close dialog after a short delay so user sees the success state
-        setTimeout(() => {
-          onOpenChange(false)
-          setSuccess(false)
-        }, 1000)
+        onOpenChange(false)
       } else {
-        setError(res?.message || "Failed to send email. Please try again.")
+        toast.error(res?.message || "Failed to send email. Please try again.")
       }
     } catch (err: any) {
       console.error(err)
-      setError("An unexpected error occurred while sending the email.")
+      toast.error("An unexpected error occurred while sending the email.")
     } finally {
       setLoading(false)
     }
@@ -117,15 +110,7 @@ export function ComposeDialog({ open, onOpenChange }: ComposeDialogProps) {
             <EmailEditor value={body} onChange={setBody} disabled={loading} />
           </div>
 
-          {error && (
-            <p className="text-xs font-medium text-destructive">{error}</p>
-          )}
 
-          {success && (
-            <p className="text-xs font-medium text-emerald-600 dark:text-emerald-500">
-              Email sent successfully!
-            </p>
-          )}
 
           <DialogFooter className="mt-2">
             <Button

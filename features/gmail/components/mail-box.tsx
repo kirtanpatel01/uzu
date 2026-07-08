@@ -11,6 +11,7 @@ import {
   SquarePen,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EmailBody } from "./email-body"
@@ -40,7 +41,6 @@ export default function Mailbox() {
   const [emails, setEmails] = useState<Email[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null)
   const [composeOpen, setComposeOpen] = useState(false)
   const [filter, setFilter] = useState<"received" | "sent">("received")
@@ -55,18 +55,17 @@ export default function Mailbox() {
     } else {
       setLoading(true)
     }
-    setError(null)
 
     try {
       const res = await getEmailsUsingCorsair()
       if (res && res.success && res.data) {
         setEmails(res.data)
       } else {
-        setError(res?.message || "Failed to load emails")
+        toast.error(res?.message || "Failed to load emails")
       }
     } catch (err) {
       console.error(err)
-      setError("An unexpected error occurred while contacting the server")
+      toast.error("An unexpected error occurred while contacting the server")
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -88,30 +87,7 @@ export default function Mailbox() {
     return <MailboxSkeleton />
   }
 
-  if (error) {
-    return (
-      <div className="mx-auto w-full max-w-2xl space-y-4 rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
-        <div className="inline-flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-          <AlertCircle className="size-6" />
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold tracking-tight">Sync Failed</h3>
-          <p className="mx-auto max-w-md text-sm text-muted-foreground">
-            {error}
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchMail()}
-          className="mx-auto flex items-center gap-2"
-        >
-          <RefreshCw className="size-3.5" />
-          <span>Try Again</span>
-        </Button>
-      </div>
-    )
-  }
+
 
   return (
     <div
