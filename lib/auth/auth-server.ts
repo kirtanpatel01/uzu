@@ -29,3 +29,9 @@ export const getSession = async (): Promise<GetSession> => {
     data: session,
   }
 }
+
+export async function getSessionTenantId(): Promise<string | null> {
+  const session = await getSession();
+  if(!session) return null;
+  return session?.data?.user?.id || null;
+}

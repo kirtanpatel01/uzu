@@ -4,6 +4,7 @@ import * as React from "react"
 import { usePathname } from "next/navigation"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
+import ConnectBtn from "../shared/connect-btn"
 
 export function SiteHeader() {
   const pathname = usePathname()
@@ -27,6 +28,13 @@ export function SiteHeader() {
       <h1 className="text-sm font-semibold tracking-tight text-foreground select-none">
         {getPageName()}
       </h1>
+
+      {getPageName() === "Gmail" && (
+        <ConnectBtn plugin="gmail" />
+      )}      
+      {getPageName() === "Calendar" && (
+        <ConnectBtn plugin="calendar" />
+      )}      
     </header>
   )
 }

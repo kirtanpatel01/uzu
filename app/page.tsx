@@ -1,26 +1,11 @@
-import { getSession } from "@/lib/auth/auth-server"
+import { Button } from "@/components/ui/button"
 import { LoginButton } from "@/features/auth/components/login-button"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/layout/app-sidebar"
-import { SiteHeader } from "@/components/layout/site-header"
-import DashboardPage from "./(protected)/dashboard/page"
+import { getSession } from "@/lib/auth/auth-server"
+import { SquareArrowOutUpRight } from "lucide-react"
+import Link from "next/link"
 
 export default async function Page() {
   const session = await getSession()
-
-  if (session.success) {
-    return (
-      <SidebarProvider>
-        <AppSidebar variant="inset" />
-        <SidebarInset className="flex h-[calc(100vh-1rem)] flex-col overflow-hidden">
-          <SiteHeader />
-          <main className="relative flex flex-1 flex-col overflow-hidden bg-background">
-            <DashboardPage />
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-    )
-  }
 
   return (
     <div className="flex min-h-screen w-screen flex-col overflow-x-hidden bg-background text-foreground">
@@ -31,9 +16,6 @@ export default async function Page() {
             U
           </div>
           <span className="text-base font-bold tracking-tight">uzu</span>
-        </div>
-        <div>
-          <LoginButton className="px-4 py-2 text-sm" text="Login" />
         </div>
       </header>
 
@@ -49,12 +31,16 @@ export default async function Page() {
           </p>
         </div>
 
-        <div className="w-full max-w-sm">
-          <LoginButton
-            className="w-full py-6 text-base"
-            text="Continue with Google"
-          />
-        </div>
+        {session ? (
+          <Link href="/dashboard">
+            <Button>
+              <SquareArrowOutUpRight />
+              Dashboard
+            </Button>
+          </Link>
+        ) : (
+          <LoginButton text="Continue with Google" />
+        )}
 
         {/* Feature Grid */}
         <div className="mt-8 grid w-full gap-8 sm:grid-cols-2 lg:grid-cols-3">
